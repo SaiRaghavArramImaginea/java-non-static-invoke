@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:java="http://www.mulesoft.org/schema/mule/java"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="df3a49b6-af47-4a45-a620-ebc5c73b5adb" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="java-non-static-invokeFlow" doc:id="925e2b5d-f632-4f2e-a2a9-d567276cbcf0" >
+		<http:listener doc:name="Listener" doc:id="84367ce9-8302-4975-aa7b-e98a8df710ab" config-ref="HTTP_Listener_config" path="/calculator"/>
+		<choice doc:name="Choice" doc:id="0f38f779-20e1-4454-9653-31c20111d246" >
+			<when expression='#[attributes.queryParams.operation == "add"]'>
+				<java:new doc:name="New" doc:id="44bbcb17-75ce-4d51-ab6c-5b9a747c088e" class="com.pramati.calculatorservice.CalcService" constructor="CalcService()" target="calc"/>
+				<java:invoke doc:name="Invoke" doc:id="3f63123b-fd38-4daa-accf-8b68970c64ef" instance="#[vars.calc]" class="com.pramati.calculatorservice.CalcService" method="add(int,int)">
+					<java:args ><![CDATA[#[%dw 2.0
+output application/java
+---
+{
+  a: attributes.queryParams.a,
+  b: attributes.queryParams.b
+}]]]></java:args>
+				</java:invoke>
+			</when>
+			<when expression='#[attributes.queryParams.operation == "sub"]'>
+				<java:new doc:name="New" doc:id="d4322a96-6ef4-444d-98f0-283f652e24f8" class="com.pramati.calculatorservice.CalcService" constructor="CalcService()" target="calc"/>
+				<java:invoke doc:name="Invoke" doc:id="f1b56cc6-41a6-43b7-82c1-4db7a4e83dc3" instance="#[vars.calc]" class="com.pramati.calculatorservice.CalcService" method="sub(int,int)">
+					<java:args ><![CDATA[#[%dw 2.0
+output application/java
+---
+{
+  a: attributes.queryParams.a,
+  b: attributes.queryParams.b
+}]]]></java:args>
+				</java:invoke>
+			</when>
+			<when expression='#[attributes.queryParams.operation == "multiply"]'>
+				<java:new doc:name="New" doc:id="d075f79f-5ceb-4321-a790-9fb4435dc693" class="com.pramati.calculatorservice.CalcService" constructor="CalcService()" target="calc"/>
+				<java:invoke doc:name="Invoke" doc:id="659389c9-2b42-4f9e-adb7-621f965dd20e" instance="#[vars.calc]" class="com.pramati.calculatorservice.CalcService" method="mulitply(int,int)">
+					<java:args ><![CDATA[#[%dw 2.0
+output application/java
+---
+{
+  a: attributes.queryParams.a,
+  b: attributes.queryParams.b
+}]]]></java:args>
+				</java:invoke>
+			</when>
+			<when expression='#[attributes.queryParams.operation == "divide"]'>
+				<java:new doc:name="New" doc:id="97cab8fa-637f-4821-b57e-221388c485a5" class="com.pramati.calculatorservice.CalcService" constructor="CalcService()" target="calc"/>
+				<java:invoke doc:name="Invoke" doc:id="f843d4b4-bc6e-4711-964e-ccbd49494c38" instance="#[vars.calc]" class="com.pramati.calculatorservice.CalcService" method="divide(int,int)">
+					<java:args ><![CDATA[#[%dw 2.0
+output application/java
+---
+{
+  a: attributes.queryParams.a,
+  b: attributes.queryParams.b
+}]]]></java:args>
+				</java:invoke>
+			</when>
+		</choice>
+		<ee:transform doc:name="Transform Message" doc:id="ef62c2bc-f77e-4ad5-9635-365b01d47e5f">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	Result : payload
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
